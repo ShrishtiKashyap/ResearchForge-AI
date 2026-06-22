@@ -1,38 +1,66 @@
-from langchain_ollama import ChatOllama
-
+import os
+import requests
 from tools import web_search, scrape_url
-
 from dotenv import load_dotenv
-
 load_dotenv()
 
-llm = ChatOllama(
-    model="qwen3:4b",
-    temperature=0,
-)
+
+# ----------------------------
+# SAFE LLM CALL (CLOUD READY)
+# ----------------------------
+
+def call_llm(prompt):
+    """
+    Uses Groq API (cloud-safe alternative to Ollama)
+    Replace YOUR_API_KEY before deployment
+    """
+
+    try:
+        response = requests.post(
+            "https://api.groq.com/openai/v1/chat/completions",
+            headers={
+                "Authorization": f"Bearer {os.getenv('GROQ_API_KEY')}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": "llama3-8b-8192",
+                "messages": [
+                    {"role": "user", "content": prompt}
+                ],
+                "temperature": 0
+            },
+            timeout=30
+        )
+
+        return response.json()["choices"][0]["message"]["content"]
+
+    except Exception as e:
+        return f"⚠️ LLM Error: {str(e)}"
 
 
-# SEARCH
+# ----------------------------
+# SEARCH AGENT
+# ----------------------------
 
 def build_search_agent(topic):
-
     return web_search.invoke(topic)
 
 
-# SCRAPER
+# ----------------------------
+# SCRAPER AGENT
+# ----------------------------
 
 def build_reader_agent(url):
-
     return scrape_url.invoke(url)
 
 
-# WRITER
+# ----------------------------
+# WRITER AGENT
+# ----------------------------
 
 def writer_agent(topic, research):
 
     prompt = f"""
-/no_think
-
 You are an expert research writer.
 
 Write a concise research report.
@@ -44,33 +72,27 @@ Research:
 {research}
 
 Structure:
-
-Introduction
-
-3 Key Findings
-
-Conclusion
-
-Sources
+- Introduction
+- 3 Key Findings
+- Conclusion
+- Sources
 
 Keep it under 400 words.
 """
 
-    response = llm.invoke(prompt)
-
-    return response.content
+    return call_llm(prompt)
 
 
-# CRITIC
+# ----------------------------
+# CRITIC AGENT
+# ----------------------------
 
 def critic_agent(report):
 
     prompt = f"""
-/no_think
-
 You are a research reviewer.
 
-Review this report.
+Review this report:
 
 {report}
 
@@ -88,6 +110,4 @@ Verdict:
 ...
 """
 
-    response = llm.invoke(prompt)
-
-    return response.content
+    return call_llm(prompt)
