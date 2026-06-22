@@ -1,14 +1,15 @@
 # 🔬 ResearchForge-AI
 
-An AI-powered multi-agent research assistant built using LangChain, Ollama, Tavily Search, BeautifulSoup, and Streamlit.
+A multi-agent AI research assistant built using LangChain, Ollama (qwen3:4b), and Streamlit that performs intelligent web research, analysis, and report generation using a modular agent pipeline.
 
 ## Features
 
-*  Searches the web for information
-*  Scrapes relevant webpage content
-*  Generates concise research reports
-*  Reviews reports using a critic agent
-*  Interactive Streamlit dashboard
+*  Multi-agent architecture (Planner, Researcher, Critic, Reporter)
+* Live web search integration (Tavily + BeautifulSoup)
+* Local LLM support via Ollama (qwen3:4b)
+* Structured research report generation
+* Self-refining critic agent loop
+* Interactive Streamlit UI
 
 ## Tech Stack
 
@@ -21,27 +22,27 @@ An AI-powered multi-agent research assistant built using LangChain, Ollama, Tavi
 
 ## Project Architecture
 
-User Topic
+User Query
 
 ↓
 
-Search Agent
+Planner Agent
 
 ↓
 
-Reader Agent
+Research Agent(Web + Tools)
 
 ↓
 
-Writer Agent
+Critic Agent(Validation + Feedback)
 
 ↓
 
-Critic Agent
+Final Report(Final Output)
 
 ↓
+Streamit UI output
 
-Final Report
 
 ## Project Structure
 
@@ -93,9 +94,13 @@ pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-## Screenshots
+## UI Preview
 
 Add screenshots inside `/assets`.
+![Home](assets/home_page.png)
+![Report](assets/report_generated.png)
+![Critic](assets/critic_feedback.png)
+
 
 ## Future Improvements
 
