@@ -2,6 +2,7 @@ import os
 import requests
 from tools import web_search, scrape_url
 from dotenv import load_dotenv
+
 load_dotenv()
 
 
@@ -10,13 +11,10 @@ load_dotenv()
 # ----------------------------
 
 def call_llm(prompt):
-    import os
-    import requests
-
     api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
-        return "❌ Missing GROQ_API_KEY"
+        return "❌ Missing GROQ_API_KEY in environment variables"
 
     try:
         response = requests.post(
@@ -26,7 +24,7 @@ def call_llm(prompt):
                 "Content-Type": "application/json"
             },
             json={
-                "model": "llama3-8b-8192",
+                "model": "llama-3.1-8b-instant",
                 "messages": [
                     {"role": "user", "content": prompt}
                 ],
@@ -37,7 +35,6 @@ def call_llm(prompt):
 
         data = response.json()
 
-        # 🔥 SAFE CHECKS (THIS FIXES YOUR ERROR)
         if "choices" not in data:
             return f"❌ Groq API error: {data}"
 
@@ -120,5 +117,3 @@ Verdict:
 """
 
     return call_llm(prompt)
-
-
