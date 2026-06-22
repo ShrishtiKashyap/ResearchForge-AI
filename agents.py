@@ -16,7 +16,7 @@ def call_llm(prompt):
     api_key = os.getenv("GROQ_API_KEY")
 
     if not api_key:
-        return "❌ GROQ_API_KEY missing in environment (Streamlit Secrets not set)"
+        return "❌ Missing GROQ_API_KEY"
 
     try:
         response = requests.post(
@@ -27,13 +27,21 @@ def call_llm(prompt):
             },
             json={
                 "model": "llama3-8b-8192",
-                "messages": [{"role": "user", "content": prompt}],
+                "messages": [
+                    {"role": "user", "content": prompt}
+                ],
                 "temperature": 0
             },
             timeout=30
         )
 
-        return response.json()["choices"][0]["message"]["content"]
+        data = response.json()
+
+        # 🔥 SAFE CHECKS (THIS FIXES YOUR ERROR)
+        if "choices" not in data:
+            return f"❌ Groq API error: {data}"
+
+        return data["choices"][0]["message"]["content"]
 
     except Exception as e:
         return f"❌ Groq API failed: {str(e)}"
