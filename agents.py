@@ -10,23 +10,24 @@ load_dotenv()
 # ----------------------------
 
 def call_llm(prompt):
-    """
-    Uses Groq API (cloud-safe alternative to Ollama)
-    Replace YOUR_API_KEY before deployment
-    """
+    import os
+    import requests
+
+    api_key = os.getenv("GROQ_API_KEY")
+
+    if not api_key:
+        return "❌ GROQ_API_KEY missing in environment (Streamlit Secrets not set)"
 
     try:
         response = requests.post(
             "https://api.groq.com/openai/v1/chat/completions",
             headers={
-                "Authorization": f"Bearer {os.getenv('GROQ_API_KEY')}",
+                "Authorization": f"Bearer {api_key}",
                 "Content-Type": "application/json"
             },
             json={
                 "model": "llama3-8b-8192",
-                "messages": [
-                    {"role": "user", "content": prompt}
-                ],
+                "messages": [{"role": "user", "content": prompt}],
                 "temperature": 0
             },
             timeout=30
@@ -35,7 +36,7 @@ def call_llm(prompt):
         return response.json()["choices"][0]["message"]["content"]
 
     except Exception as e:
-        return f"⚠️ LLM Error: {str(e)}"
+        return f"❌ Groq API failed: {str(e)}"
 
 
 # ----------------------------
@@ -111,3 +112,5 @@ Verdict:
 """
 
     return call_llm(prompt)
+
+
